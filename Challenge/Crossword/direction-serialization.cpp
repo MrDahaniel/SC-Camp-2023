@@ -116,39 +116,69 @@ void process_wordlist(vector<Word>* wordlist) {
 
 void horizontal_search(vector<char>* soup, vector<Word>* wordlist) {
     // Can pragma here
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < M; i++) {
     // Could do it here but can break things, maybe not 
-    for (int k = 0; k < M; k++) {
+    for (int k = 0; k < N; k++) {
     for (auto &word : (*wordlist)) {
-        if (word.length + k > N) {
-            continue;
-        }
+        if (word.str[0] == (*soup)[i * M + k] || word.str[word.length - 1]  == (*soup)[i * M + k]) {
+            if (k - (word.length - 1) >= 0) { // Seg fault Chad avoider
+                bool found; 
 
-        // East search
-        if (word.str[0] == (*soup)[i * M + k]) {
-            // can pragma this too
-            bool found = true;
-            for (int j = 1; j < word.length; j++) {
-                if (!found) { break; };
-                if (word.str[j] != (*soup)[i * M + k + j]) { found = false; };
-
+                // caso 1: la palabra está al revés y se retrocede en el vector
+                if (word.str[word.length - 1]  == (*soup)[i * M + k]) {
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[word.length - 1 - j] != (*soup)[i * M + k - j]) { found = false; }
+                    }
+                    if (found) {
+                        word.instances.push_back(Location(k - (word.length - 1), i, Direction::EAST, 1));
+                        break;
+                    }
+                }
+                // caso 2: la palabra está al derecho y se retrocede en el vector
+                if (word.str[0] == (*soup)[i * M + k]) {
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[j] != (*soup)[i * M + k - j]) { found = false; }
+                    }
+                    if (found) {
+                        word.instances.push_back(Location(k, i, Direction::WEST, 2));
+                        break;
+                    }
+                }
             }
-            if (found) { 
-                word.instances.push_back(Location(i, k, Direction::EAST)); 
-                k += word.length - 1;
-                continue;
-            }
-        }
-        // West search
-        if (word.str.back() == (*soup)[i * M + k]) {
-            // can pragma this too
-            bool found = true;
-            for (int j = 1; j < word.length; j++) {
-                if (word.str[word.length - 1 - j] != (*soup)[i * M + k + j]) { found = false; };
-            }
-            if (found) { 
-                word.instances.push_back(Location(i, k + word.length - 1, Direction::WEST)); 
-                k += word.length - 1;
+            if ((word.length - 1) + k < M) { // Seg fault Chad avoider
+                bool found; 
+                cout << fmt::format("({}, {}) - {} == {} || {} == {}? {}", i, k, word.str[0], (*soup)[i * M + k], word.str[word.length - 1], (*soup)[i * M + k],word.str[0] == (*soup)[i * M + k] || word.str[word.length - 1]  == (*soup)[i * M + k]) << endl;
+                // caso 3: la palabra está al revés y se avanza en el vector
+                if (word.str[word.length - 1]  == (*soup)[i * M + k]) {
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[word.length - 1 - j] != (*soup)[i * M + k + j]) { found = false; }
+                        cout << fmt::format("({}, {}) - {} != {}? {} found {}", i, k, word.str[word.length - 1 - j], (*soup)[i * M + k + j], word.str[word.length - 1 - j] != (*soup)[i * M + k + j], found) << endl;
+                    }
+                    if (found) {
+                        k += (word.length - 1);
+                        word.instances.push_back(Location(k, i, Direction::WEST, 3));
+                        break;
+                    }
+                }
+                // caso 4: la palabra está al derecho y se avanza en el vector
+                if (word.str[0]  == (*soup)[i * M + k]) {
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[j] != (*soup)[i * M + k + j]) { found = false; }
+                    }
+                    if (found) {
+                        word.instances.push_back(Location(k, i, Direction::EAST, 4));
+                        k += (word.length - 1);
+                        break;
+                    }   
+                }
             }
         }
     }
@@ -161,11 +191,9 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
     for (int i = 0; i < M; i++) {
     // Could do it here but can break things, maybe not 
     for (int k = 0; k < N; k++) {
-    // cout << "k: " << k << endl;
     for (auto &word : (*wordlist)) {
         if (word.str[0] == (*soup)[i + k * N] || word.str[word.length - 1]  == (*soup)[i + k * N]) {
             if (k - (word.length - 1) >= 0) { // Seg fault Chad avoider
-            cout << fmt::format("({}, {}) -> {} == {} || {} == {}? {}", i, k, word.str[0], (*soup)[i + k * N], word.str[word.length - 1], (*soup)[i + k * N], word.str[0] == (*soup)[i + k * N] || word.str[word.length - 1]  == (*soup)[i + k * N]) << endl;
                 bool found; 
 
                 // caso 1: la palabra está al revés y se retrocede en el vector
@@ -175,7 +203,6 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                         if (!found) { break; }
                         if (word.str[word.length - 1 - j] != (*soup)[i + (k - j) * N]) { found = false; }
                     }
-                    cout << "pato" << endl;
                     if (found) {
                         word.instances.push_back(Location(i, k - (word.length - 1), Direction::SOUTH, 1));
                         break;
@@ -187,7 +214,6 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                     for (int j = 1; j < word.length; j++) {
                         if (!found) { break; }
                         if (word.str[j] != (*soup)[i + (k - j) * N]) { found = false; }
-                        cout << fmt::format("({}, {}) -> {} != {}? {}. found? {}", i, k + j, word.str[word.length - 1 - j], (*soup)[i + (k + j) * N], word.str[word.length - 1 - j] != (*soup)[i + (k + j) * N], found) <<  endl;
                     }
                     if (found) {
                         word.instances.push_back(Location(i, k, Direction::NORTH, 2));
@@ -200,7 +226,6 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
 
                 // caso 3: la palabra está al revés y se avanza en el vector
                 if (word.str[word.length - 1]  == (*soup)[i + k * N]) {
-
                     found = true;
                     for (int j = 1; j < word.length; j++) {
                         if (!found) { break; }
@@ -213,18 +238,18 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                     }
                 }
                 // caso 4: la palabra está al derecho y se avanza en el vector
-                found = true;
-                for (int j = 1; j < word.length; j++) {
-                    if (!found) { break; }
-                    if (word.str[j] != (*soup)[i + (k + j) * N]) { found = false; }
+                if (word.str[0] == (*soup)[i + k * N]) {
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[j] != (*soup)[i + (k + j) * N]) { found = false; }
+                    }
+                    if (found) {
+                        word.instances.push_back(Location(i, k, Direction::SOUTH, 4));
+                        k += (word.length - 1);
+                        break;
+                    }
                 }
-                if (found) {
-                    word.instances.push_back(Location(i, k, Direction::SOUTH, 4));
-                    k += (word.length - 1);
-                    break;
-                    
-                }
-
             }
         }
     }
@@ -289,15 +314,15 @@ void final_report(vector<Word>* wordlist) {
 
 int main(int argc, char** argv) {
     // define the matrix 
-    vector<char> soup = set_soup("123151785011145...........acor......cr.a......o.b.......r..o..t.....ccl.a....a.a..c..tacotaco.......kaco............");
+    vector<char> soup = set_soup("123151155051145...........acor......cr.a......o.b.......r..o..t.....ccl.a....a.a..c..tacotaco.......kaco............");
     vector<Word> wordlist {
-        Word("51"), 
+        Word("123"), 
         // Word("3715"), 
-        // Word("26"), 
+        // Word("1231"), 
         // Word("04"), 
         // Word("3"), 
         // Word("5173"), 
-        Word("551"), 
+        Word("51"), 
         // Word("47"), 
         // Word("03"), 
         // Word("25"), 
@@ -311,7 +336,7 @@ int main(int argc, char** argv) {
 
     print_wordlist(&wordlist);
 
-    // horizontal_search(&soup, &wordlist);
+    horizontal_search(&soup, &wordlist);
 
     vertical_search(&soup, &wordlist);
 
