@@ -174,7 +174,6 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                     for (int j = 1; j < word.length; j++) {
                         // if (!found) { break; }
                         if (word.str[word.length - 1 - j] != (*soup)[i + (k - j) * N]) { found = false; }
-                        cout << fmt::format("({}, {}) -> {} != {}? {}. found? {}", i, k - j, word.str[word.length - 1 - j], (*soup)[i + (k - j) * N], word.str[word.length - 1 - j] != (*soup)[i + (k - j) * N], found) <<  endl;
                     }
                     cout << "pato" << endl;
                     if (found) {
@@ -182,27 +181,33 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                     }
                 }
                 // caso 2: la palabra está al derecho y se retrocede en el vector
-                found = true;
-                for (int j = 1; j < word.length; j++) {
-                    if (!found) { break; }
-                    if (word.str[j] != (*soup)[i + (k - j) * N]) { found = false; }
-                }
-                if (found) {
-                    word.instances.push_back(Location(i, k, Direction::SOUTH, 2));
+                if (word.str[0] == (*soup)[i + k * N]) {
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[j] != (*soup)[i + (k - j) * N]) { found = false; }
+                        cout << fmt::format("({}, {}) -> {} != {}? {}. found? {}", i, k + j, word.str[word.length - 1 - j], (*soup)[i + (k + j) * N], word.str[word.length - 1 - j] != (*soup)[i + (k + j) * N], found) <<  endl;
+                    }
+                    if (found) {
+                        word.instances.push_back(Location(i, k, Direction::SOUTH, 2));
+                    }
                 }
             }
             if ((word.length - 1) + k < N) { // Seg fault Chad avoider
                 bool found; 
 
                 // caso 3: la palabra está al revés y se avanza en el vector
-                found = true;
-                for (int j = 1; j < word.length; j++) {
-                    if (!found) { break; }
-                    if (word.str[word.length - 1 - j] != (*soup)[i + (k + j) * N]) { found = false; }
-                }
-                if (found) {
-                    k += (word.length - 1);
-                    word.instances.push_back(Location(i, k, Direction::NORTH, 3));
+                if (word.str[word.length - 1]  == (*soup)[i + k * N]) {
+
+                    found = true;
+                    for (int j = 1; j < word.length; j++) {
+                        if (!found) { break; }
+                        if (word.str[word.length - 1 - j] != (*soup)[i + (k + j) * N]) { found = false; }
+                    }
+                    if (found) {
+                        k += (word.length - 1);
+                        word.instances.push_back(Location(i, k, Direction::NORTH, 3));
+                    }
                 }
                 // caso 4: la palabra está al derecho y se avanza en el vector
                 found = true;
@@ -279,7 +284,7 @@ void final_report(vector<Word>* wordlist) {
 
 int main(int argc, char** argv) {
     // define the matrix 
-    vector<char> soup = set_soup("123156785011145...........acor......cr.a......o.b.......r..o..t.....ccl.a....a.a..c..tacotaco.......kaco............");
+    vector<char> soup = set_soup("123151785011145...........acor......cr.a......o.b.......r..o..t.....ccl.a....a.a..c..tacotaco.......kaco............");
     vector<Word> wordlist {
         Word("51"), 
         // Word("3951"), 
