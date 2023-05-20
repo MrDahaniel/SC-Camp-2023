@@ -172,12 +172,13 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                 if (word.str[word.length - 1]  == (*soup)[i + k * N]) {
                     found = true;
                     for (int j = 1; j < word.length; j++) {
-                        // if (!found) { break; }
+                        if (!found) { break; }
                         if (word.str[word.length - 1 - j] != (*soup)[i + (k - j) * N]) { found = false; }
                     }
                     cout << "pato" << endl;
                     if (found) {
-                        word.instances.push_back(Location(i, k, Direction::NORTH, 1));
+                        word.instances.push_back(Location(i, k - (word.length - 1), Direction::SOUTH, 1));
+                        break;
                     }
                 }
                 // caso 2: la palabra está al derecho y se retrocede en el vector
@@ -189,7 +190,8 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                         cout << fmt::format("({}, {}) -> {} != {}? {}. found? {}", i, k + j, word.str[word.length - 1 - j], (*soup)[i + (k + j) * N], word.str[word.length - 1 - j] != (*soup)[i + (k + j) * N], found) <<  endl;
                     }
                     if (found) {
-                        word.instances.push_back(Location(i, k, Direction::SOUTH, 2));
+                        word.instances.push_back(Location(i, k, Direction::NORTH, 2));
+                        break;
                     }
                 }
             }
@@ -207,6 +209,7 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                     if (found) {
                         k += (word.length - 1);
                         word.instances.push_back(Location(i, k, Direction::NORTH, 3));
+                        break;
                     }
                 }
                 // caso 4: la palabra está al derecho y se avanza en el vector
@@ -218,6 +221,8 @@ void vertical_search(vector<char>* soup, vector<Word>* wordlist) {
                 if (found) {
                     word.instances.push_back(Location(i, k, Direction::SOUTH, 4));
                     k += (word.length - 1);
+                    break;
+                    
                 }
 
             }
@@ -287,12 +292,12 @@ int main(int argc, char** argv) {
     vector<char> soup = set_soup("123151785011145...........acor......cr.a......o.b.......r..o..t.....ccl.a....a.a..c..tacotaco.......kaco............");
     vector<Word> wordlist {
         Word("51"), 
-        // Word("3951"), 
+        // Word("3715"), 
         // Word("26"), 
         // Word("04"), 
         // Word("3"), 
         // Word("5173"), 
-        // Word("814"), 
+        Word("551"), 
         // Word("47"), 
         // Word("03"), 
         // Word("25"), 
@@ -306,13 +311,13 @@ int main(int argc, char** argv) {
 
     print_wordlist(&wordlist);
 
-    horizontal_search(&soup, &wordlist);
+    // horizontal_search(&soup, &wordlist);
 
     vertical_search(&soup, &wordlist);
 
-    positive_diagonal_search(&soup, &wordlist);
+    // positive_diagonal_search(&soup, &wordlist);
 
-    negative_diagonal_search(&soup, &wordlist);
+    // negative_diagonal_search(&soup, &wordlist);
 
     final_report(&wordlist);
 
